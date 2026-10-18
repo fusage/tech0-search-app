@@ -17,8 +17,10 @@ def fetch_page(url: str, timeout: int = 10) -> Optional[str]:
         # エラーコードなら例外を発生させる
         resp.raise_for_status()
         
-        # 文字コードを推定して設定
-        resp.encoding = resp.apparent_encoding
+        # 文字コードを設定（ヘッダーに charset がない場合のみ推定する）
+        # ※ requests は charset なしの text/html を ISO-8859-1 とみなすため、その場合も推定に回す
+        if "charset" not in resp.headers.get("content-type", "").lower():
+            resp.encoding = resp.apparent_encoding
         
         # HTML全文を返す
         return resp.text
